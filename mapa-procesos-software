@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Mental - Procesos de Software</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .mindmap-container {
+            min-width: 1200px;
+            padding: 40px;
+        }
+        .node {
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .node-content {
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        .node:hover .node-content {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .node.collapsed .node-content { background: #666 !important; }
+        .node.collapsed .children { display: none; }
+        .main-node .node-content {
+            background: #a8b8f8;
+            color: #1a1a2e;
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+        .level-1 .node-content {
+            background: #98d8c8;
+            color: #1a3a3a;
+            font-size: 16px;
+        }
+        .level-2 .node-content {
+            background: #88e8b8;
+            color: #1a3a2a;
+            font-size: 14px;
+        }
+        .level-3 .node-content {
+            background: #78f8a8;
+            color: #0a2a1a;
+            font-size: 13px;
+        }
+        .children {
+            margin: 20px 0 20px 40px;
+            padding-left: 20px;
+            border-left: 2px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .toggle-btn {
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .node.collapsed .toggle-btn {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 300px;
+            display: none;
+            z-index: 1000;
+        }
+        .info-panel h3 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        .info-panel p {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instructions {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #1e3c72;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="mindmap-container">
+        <div class="instructions">
+            💡 Haz clic en cualquier nodo para expandir/colapsar | Pasa el mouse para ver efectos
+        </div>
+        <div id="mindmap"></div>
+    </div>
+    <div class="info-panel" id="infoPanel">
+        <h3 id="infoTitle"></h3>
+        <p id="infoContent"></p>
+    </div>
+    <script>
+        const mindMapData = {
+            text: "Procesos de Software",
+            level: "main",
+            info: "Los procesos de software son el conjunto de actividades, métodos y prácticas que se utilizan para desarrollar y mantener software de calidad.",
+            children: [
+                {
+                    text: "Definición de Software",
+                    level: "level-1",
+                    info: "El software es más que solo código; incluye programas, datos y documentación.",
+                    children: [
+                        { text: "Programas (Instrucciones)", level: "level-2", info: "Conjunto de instrucciones que ejecutan las funciones deseadas" },
+                        { text: "Estructuras de Datos", level: "level-2", info: "Permiten manipular la información de manera eficiente" },
+                        { text: "Información Descriptiva", level: "level-2", info: "Manuales, diagramas y documentación técnica" },
+                        { text: "Producto y Vehículo", level: "level-2", info: "El software es tanto un producto como un medio para entregar información" }
+                    ]
+                },
+                {
+                    text: "Ingeniería de Software",
+                    level: "level-1",
+                    info: "Aplicación sistemática, disciplinada y cuantificable al desarrollo del software.",
+                    children: [
+                        { 
+                            text: "Enfoque sistemático", 
+                            level: "level-2",
+                            info: "Métodos estructurados que aseguran calidad",
+                            children: [
+                                { text: "Compromiso con la Calidad", level: "level-3", info: "La calidad debe ser fundamental" }
+                            ]
+                        },
+                        { 
+                            text: "Tecnología en Capas", 
+                            level: "level-2",
+                            info: "La ingeniería se construye sobre capas fundamentales",
+                            children: [
+                                { text: "Proceso (Fundación)", level: "level-3", info: "Marco de trabajo" },
+                                { text: "Métodos", level: "level-3", info: "Cómo técnicos: análisis, diseño, pruebas" },
+                                { text: "Herramientas (CASE)", level: "level-3", info: "Soporte automatizado" }
+                            ]
+                        },
+                        { text: "Importancia", level: "level-2", info: "Complejidad, Adaptabilidad y Costo" }
+                    ]
+                },
+                {
+                    text: "El Proceso de Software",
+                    level: "level-1",
+                    info: "Colección de actividades, acciones y tareas para crear software.",
+                    children: [
+                        { 
+                            text: "Jerarquía del Trabajo", 
+                            level: "level-2",
+                            children: [
+                                { text: "Proceso", level: "level-3", info: "Colección general" },
+                                { text: "Actividad", level: "level-3", info: "Objetivos amplios" },
+                                { text: "Acción", level: "level-3", info: "Productos de trabajo" },
+                                { text: "Tarea", level: "level-3", info: "Objetivos pequeños" }
+                            ]
+                        },
+                        { 
+                            text: "Sommerville", 
+                            level: "level-2",
+                            children: [
+                                { text: "Especificación", level: "level-3", info: "Requisitos" },
+                                { text: "Desarrollo", level: "level-3", info: "Diseño y programación" },
+                                { text: "Validación", level: "level-3", info: "Pruebas" },
+                                { text: "Evolución", level: "level-3", info: "Mantenimiento" }
+                            ]
+                        },
+                        { 
+                            text: "Pressman y Maxim", 
+                            level: "level-2",
+                            children: [
+                                { text: "Comunicación", level: "level-3", info: "Entender stakeholders" },
+                                { text: "Planificación", level: "level-3", info: "Crear mapa del proyecto" },
+                                { text: "Modelado", level: "level-3", info: "Comprender requisitos" },
+                                { text: "Construcción", level: "level-3", info: "Código y pruebas" },
+                                { text: "Despliegue", level: "level-3", info: "Entrega al cliente" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    text: "Modelos de Proceso (SDLC)",
+                    level: "level-1",
+                    info: "Representación simplificada del proceso de software.",
+                    children: [
+                        { text: "Cascada (Lineal)", level: "level-2", info: "Enfoque secuencial" },
+                        { text: "Incremental", level: "level-2", info: "Fragmentos funcionales" },
+                        { text: "Evolutivo", level: "level-2", info: "Espiral y Prototipos" },
+                        { text: "Especializados", level: "level-2", info: "Componentes, RUP" }
+                    ]
+                },
+                {
+                    text: "Calidad del Software",
+                    level: "level-1",
+                    info: "Capacidad de satisfacer necesidades establecidas.",
+                    children: [
+                        { text: "Cumplimiento de requisitos", level: "level-2", info: "Grado de cumplimiento" },
+                        { text: "Satisfacción del stakeholder", level: "level-2", info: "Necesidades y expectativas" },
+                        { text: "Valor funcional y técnico", level: "level-2", info: "Código limpio + valor" }
+                    ]
+                }
+            ]
+        };
+
+        function createNode(nodeData, level = 0) {
+            const node = document.createElement('div');
+            node.className = `node ${nodeData.level} ${level === 0 ? 'main-node' : ''}`;
+            
+            const nodeContent = document.createElement('div');
+            nodeContent.className = 'node-content';
+            nodeContent.textContent = nodeData.text;
+            
+            const toggleBtn = document.createElement('div');
+            toggleBtn.className = 'toggle-btn';
+            toggleBtn.textContent = '−';
+            
+            nodeContent.appendChild(toggleBtn);
+            node.appendChild(nodeContent);
+            
+            if (nodeData.children && nodeData.children.length > 0) {
+                const childrenContainer = document.createElement('div');
+                childrenContainer.className = 'children';
+                
+                nodeData.children.forEach(child => {
+                    const childNode = createNode(child, level + 1);
+                    childrenContainer.appendChild(childNode);
+                });
+                
+                node.appendChild(childrenContainer);
+                
+                nodeContent.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    node.classList.toggle('collapsed');
+                    toggleBtn.textContent = node.classList.contains('collapsed') ? '+' : '−';
+                });
+            } else {
+                toggleBtn.style.display = 'none';
+            }
+            
+            if (nodeData.info) {
+                node.addEventListener('mouseenter', (e) => {
+                    e.stopPropagation();
+                    showInfo(nodeData.text, nodeData.info);
+                });
+                
+                node.addEventListener('mouseleave', () => {
+                    hideInfo();
+                });
+            }
+            
+            return node;
+        }
+
+        function showInfo(title, content) {
+            const infoPanel = document.getElementById('infoPanel');
+            const infoTitle = document.getElementById('infoTitle');
+            const infoContent = document.getElementById('infoContent');
+            
+            infoTitle.textContent = title;
+            infoContent.textContent = content;
+            infoPanel.style.display = 'block';
+        }
+
+        function hideInfo() {
+            document.getElementById('infoPanel').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('mindmap');
+            const mindMap = createNode(mindMapData);
+            container.appendChild(mindMap);
+        });
+    </script>
+</body>
+</html>
