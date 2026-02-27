@@ -42,16 +42,22 @@
             position: relative;
         }
 
+        /* Efecto de iluminación al pasar el mouse - TODOS los nodos */
         .node:hover .node-content {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            transform: scale(1.08);
+            box-shadow: 0 8px 20px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.3);
+            filter: brightness(1.15);
+            z-index: 100;
         }
 
+        /* Nodos colapsados (solo nodos padre) - fondo más oscuro */
         .node.collapsed > .node-content {
             background: #5a6b8c !important;
             color: #fff !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
+        /* Ocultar hijos cuando está colapsado */
         .node.collapsed > .children {
             display: none !important;
         }
@@ -79,6 +85,15 @@
             background: #78f8a8;
             color: #0a2a1a;
             font-size: 13px;
+        }
+
+        /* Nodos hoja - SIN sombreado, colores normales */
+        .node.leaf .node-content {
+            cursor: default;
+        }
+
+        .node.leaf .toggle-btn {
+            display: none !important;
         }
 
         .children {
@@ -113,14 +128,6 @@
         .node.collapsed > .node-content .toggle-btn {
             background: #ff6b6b;
             transform: translateY(-50%);
-        }
-
-        .node.leaf {
-            cursor: default;
-        }
-
-        .node.leaf .toggle-btn {
-            display: none !important;
         }
 
         .info-panel {
@@ -186,7 +193,7 @@
 <body>
     <div class="mindmap-container">
         <div class="instructions">
-            💡 Haz clic en los nodos con '+' para expandir | Pasa el mouse para ver información detallada
+            💡 Haz clic en los nodos con '+' para expandir | Pasa el mouse para ver información detallada y ver el nodo iluminado
             <button class="expand-all" onclick="expandAll()">Expandir Todo</button>
             <button class="collapse-all" onclick="collapseAll()">Colapsar Todo</button>
         </div>
@@ -206,7 +213,7 @@
                 {
                     text: "Definición de Software",
                     level: "level-1",
-                    info: "El software es más que simple código; combina instrucciones, estructuras de datos y documentación para entregar valor al usuario.",
+                    info: "El software es más que solo código; combina instrucciones, estructuras de datos y documentación para entregar valor al usuario.",
                     children: [
                         { 
                             text: "Producto y Vehículo de Información", 
@@ -218,9 +225,9 @@
                             level: "level-2",
                             info: "Tres elementos esenciales: (1) Instrucciones/programas, (2) Estructuras de datos, (3) Información descriptiva/documentación",
                             children: [
-                                { text: "Instrucciones (Programas)", level: "level-3", info: "Código que al ejecutarse proporciona las funciones y rendimiento deseados" },
-                                { text: "Estructuras de Datos", level: "level-3", info: "Permiten manipular la información de manera eficiente y efectiva" },
-                                { text: "Documentación", level: "level-3", info: "Manuales, diagramas de diseño y documentación técnica que describen operación y uso" }
+                                { text: "Instrucciones (Programas)", level: "level-3", info: "Código que al ejecutarse proporciona las funciones, características y rendimiento deseados" },
+                                { text: "Estructuras de Datos", level: "level-3", info: "Permiten a los programas manipular la información adecuadamente y de manera eficiente" },
+                                { text: "Documentación", level: "level-3", info: "Manuales de usuario, documentación técnica y diagramas de diseño que describen la operación y uso del software" }
                             ]
                         },
                         { 
@@ -229,7 +236,7 @@
                             info: "Tipos de software que dominan el mercado actual",
                             children: [
                                 { text: "WebApps (Web 3.0)", level: "level-3", info: "Aplicaciones web sofisticadas con bases de datos semánticas, APIs y representación flexible de datos" },
-                                { text: "Aplicaciones Móviles", level: "level-3", info: "Aprovechan sensores, pantallas táctiles, geolocalización y notificaciones push" }
+                                { text: "Aplicaciones Móviles", level: "level-3", info: "Aprovechan sensores, pantallas táctiles, geolocalización y notificaciones push de plataformas como iOS y Android" }
                             ]
                         }
                     ]
@@ -245,9 +252,9 @@
                             info: "La ingeniería de software se construye sobre cuatro capas fundamentales interrelacionadas",
                             children: [
                                 { text: "Compromiso con la Calidad", level: "level-3", info: "Fundamento organizacional indispensable; sin calidad, las técnicas no importan" },
-                                { text: "Capa de Proceso", level: "level-3", info: "El 'pegamento' que mantiene unidas las capas; define el marco de trabajo" },
+                                { text: "Capa de Proceso", level: "level-3", info: "El 'pegamento' que mantiene unidas las capas; define el marco de trabajo para la entrega efectiva" },
                                 { text: "Métodos", level: "level-3", info: "Los 'cómo técnicos': comunicación, análisis, diseño, construcción, pruebas y soporte" },
-                                { text: "Herramientas (CASE)", level: "level-3", info: "Soporte automatizado o semiautomatizado para proceso y métodos" }
+                                { text: "Herramientas (CASE)", level: "level-3", info: "Soporte automatizado o semiautomatizado para el proceso y los métodos" }
                             ]
                         },
                         { 
@@ -415,6 +422,7 @@
             
             const hasChildren = nodeData.children && nodeData.children.length > 0;
             
+            // Solo agregar clase collapsed y botón toggle si tiene hijos
             if (hasChildren) {
                 node.classList.add('collapsed');
                 
@@ -425,6 +433,7 @@
                 
                 nodeContent.appendChild(toggleBtn);
                 
+                // Event listeners solo para nodos con hijos
                 nodeContent.addEventListener('click', function(e) {
                     e.stopPropagation();
                     node.classList.toggle('collapsed');
@@ -437,6 +446,7 @@
                     toggleBtn.textContent = node.classList.contains('collapsed') ? '+' : '−';
                 });
             } else {
+                // Marcar como nodo hoja - SIN sombreado
                 node.classList.add('leaf');
             }
             
@@ -454,6 +464,7 @@
                 node.appendChild(childrenContainer);
             }
             
+            // Info panel on hover (para todos los nodos que tengan info)
             if (nodeData.info) {
                 node.addEventListener('mouseenter', function(e) {
                     e.stopPropagation();
@@ -501,6 +512,7 @@
             const allButtons = document.querySelectorAll('.toggle-btn');
             
             allNodes.forEach(node => {
+                // Solo colapsar nodos que tienen hijos
                 if (node.querySelector('.toggle-btn')) {
                     node.classList.add('collapsed');
                 }
@@ -511,6 +523,7 @@
             });
         }
 
+        // Inicializar cuando el DOM esté cargado
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('mindmap');
             const mindMap = createNode(mindMapData);
