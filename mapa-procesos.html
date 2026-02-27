@@ -11,28 +11,32 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: auto;
+        }
+
+        .mindmap-container {
+            width: 100%;
+            min-height: 100vh;
             padding: 20px;
             overflow-x: auto;
         }
 
-        .mindmap-container {
-            min-width: 1200px;
-            padding: 40px;
-        }
-
         .node {
             display: inline-block;
-            margin: 10px;
+            margin: 8px;
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .node-content {
-            padding: 12px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
             text-align: center;
             font-weight: 600;
@@ -40,9 +44,9 @@
             transition: all 0.3s ease;
             user-select: none;
             position: relative;
+            display: inline-block;
         }
 
-        /* Efecto de iluminación al pasar el mouse - TODOS los nodos */
         .node:hover .node-content {
             transform: scale(1.08);
             box-shadow: 0 8px 20px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.3);
@@ -50,14 +54,12 @@
             z-index: 100;
         }
 
-        /* Nodos colapsados (solo nodos padre) - fondo más oscuro */
         .node.collapsed > .node-content {
             background: #5a6b8c !important;
             color: #fff !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        /* Ocultar hijos cuando está colapsado */
         .node.collapsed > .children {
             display: none !important;
         }
@@ -65,29 +67,28 @@
         .main-node .node-content {
             background: #a8b8f8;
             color: #1a1a2e;
-            font-size: 18px;
-            padding: 15px 30px;
+            font-size: 16px;
+            padding: 12px 25px;
         }
 
         .level-1 .node-content {
             background: #98d8c8;
             color: #1a3a3a;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .level-2 .node-content {
             background: #88e8b8;
             color: #1a3a2a;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .level-3 .node-content {
             background: #78f8a8;
             color: #0a2a1a;
-            font-size: 13px;
+            font-size: 12px;
         }
 
-        /* Nodos hoja - SIN sombreado, colores normales */
         .node.leaf .node-content {
             cursor: default;
         }
@@ -97,8 +98,8 @@
         }
 
         .children {
-            margin: 20px 0 20px 40px;
-            padding-left: 20px;
+            margin: 15px 0 15px 30px;
+            padding-left: 15px;
             border-left: 2px solid rgba(255,255,255,0.3);
             display: flex;
             flex-direction: column;
@@ -107,18 +108,18 @@
 
         .toggle-btn {
             position: absolute;
-            right: -12px;
+            right: -10px;
             top: 50%;
             transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             background: #fff;
             border: 2px solid #333;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             z-index: 10;
             transition: all 0.3s ease;
@@ -132,52 +133,60 @@
 
         .info-panel {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
             background: white;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-width: 400px;
+            max-width: 350px;
             display: none;
             z-index: 1000;
+            font-size: 13px;
         }
 
         .info-panel h3 {
             color: #1e3c72;
-            margin-bottom: 10px;
-            font-size: 18px;
+            margin-bottom: 8px;
+            font-size: 16px;
         }
 
         .info-panel p {
             color: #333;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         .instructions {
             background: rgba(255,255,255,0.95);
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-align: center;
             color: #1e3c72;
             font-weight: 600;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .expand-all, .collapse-all {
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 10px;
             font-weight: 600;
+            font-size: 12px;
+            transition: background 0.3s;
         }
 
-        .expand-all:hover, .collapse-all:hover {
+        .expand-all:hover {
             background: #45a049;
         }
 
@@ -188,12 +197,32 @@
         .collapse-all:hover {
             background: #da190b;
         }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
     </style>
 </head>
 <body>
     <div class="mindmap-container">
         <div class="instructions">
-            💡 Haz clic en los nodos con '+' para expandir | Pasa el mouse para ver información detallada y ver el nodo iluminado
+            <span>💡 Haz clic en los nodos con '+' para expandir | Pasa el mouse para ver información</span>
             <button class="expand-all" onclick="expandAll()">Expandir Todo</button>
             <button class="collapse-all" onclick="collapseAll()">Colapsar Todo</button>
         </div>
@@ -422,7 +451,6 @@
             
             const hasChildren = nodeData.children && nodeData.children.length > 0;
             
-            // Solo agregar clase collapsed y botón toggle si tiene hijos
             if (hasChildren) {
                 node.classList.add('collapsed');
                 
@@ -433,7 +461,6 @@
                 
                 nodeContent.appendChild(toggleBtn);
                 
-                // Event listeners solo para nodos con hijos
                 nodeContent.addEventListener('click', function(e) {
                     e.stopPropagation();
                     node.classList.toggle('collapsed');
@@ -446,7 +473,6 @@
                     toggleBtn.textContent = node.classList.contains('collapsed') ? '+' : '−';
                 });
             } else {
-                // Marcar como nodo hoja - SIN sombreado
                 node.classList.add('leaf');
             }
             
@@ -464,7 +490,6 @@
                 node.appendChild(childrenContainer);
             }
             
-            // Info panel on hover (para todos los nodos que tengan info)
             if (nodeData.info) {
                 node.addEventListener('mouseenter', function(e) {
                     e.stopPropagation();
@@ -512,7 +537,6 @@
             const allButtons = document.querySelectorAll('.toggle-btn');
             
             allNodes.forEach(node => {
-                // Solo colapsar nodos que tienen hijos
                 if (node.querySelector('.toggle-btn')) {
                     node.classList.add('collapsed');
                 }
@@ -523,7 +547,6 @@
             });
         }
 
-        // Inicializar cuando el DOM esté cargado
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('mindmap');
             const mindMap = createNode(mindMapData);
