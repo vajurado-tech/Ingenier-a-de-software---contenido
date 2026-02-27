@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Mental - Procesos de Software</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             padding: 20px;
             overflow-x: auto;
         }
+
         .mindmap-container {
             min-width: 1200px;
             padding: 40px;
         }
+
         .node {
             display: inline-block;
             margin: 10px;
@@ -23,6 +30,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+
         .node-content {
             padding: 12px 20px;
             border-radius: 8px;
@@ -31,34 +39,48 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             user-select: none;
+            position: relative;
         }
+
         .node:hover .node-content {
             transform: scale(1.05);
             box-shadow: 0 6px 12px rgba(0,0,0,0.4);
         }
-        .node.collapsed .node-content { background: #666 !important; }
-        .node.collapsed .children { display: none; }
+
+        .node.collapsed > .node-content {
+            background: #5a6b8c !important;
+            color: #fff !important;
+        }
+
+        .node.collapsed > .children {
+            display: none !important;
+        }
+
         .main-node .node-content {
             background: #a8b8f8;
             color: #1a1a2e;
             font-size: 18px;
             padding: 15px 30px;
         }
+
         .level-1 .node-content {
             background: #98d8c8;
             color: #1a3a3a;
-            font-size: 16px;
+            font-size: 15px;
         }
+
         .level-2 .node-content {
             background: #88e8b8;
             color: #1a3a2a;
             font-size: 14px;
         }
+
         .level-3 .node-content {
             background: #78f8a8;
             color: #0a2a1a;
             font-size: 13px;
         }
+
         .children {
             margin: 20px 0 20px 40px;
             padding-left: 20px;
@@ -67,27 +89,40 @@
             flex-direction: column;
             align-items: flex-start;
         }
+
         .toggle-btn {
             position: absolute;
-            right: -10px;
+            right: -12px;
             top: 50%;
             transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             background: #fff;
             border: 2px solid #333;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 16px;
             font-weight: bold;
             z-index: 10;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
-        .node.collapsed .toggle-btn {
-            transform: translateY(-50%) rotate(180deg);
+
+        .node.collapsed > .node-content .toggle-btn {
+            background: #ff6b6b;
+            transform: translateY(-50%);
         }
+
+        .node.leaf {
+            cursor: default;
+        }
+
+        .node.leaf .toggle-btn {
+            display: none !important;
+        }
+
         .info-panel {
             position: fixed;
             top: 20px;
@@ -96,34 +131,64 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-width: 300px;
+            max-width: 400px;
             display: none;
             z-index: 1000;
         }
+
         .info-panel h3 {
             color: #1e3c72;
             margin-bottom: 10px;
+            font-size: 18px;
         }
+
         .info-panel p {
             color: #333;
             font-size: 14px;
             line-height: 1.6;
         }
+
         .instructions {
-            background: rgba(255,255,255,0.9);
-            padding: 15px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px 25px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             text-align: center;
             color: #1e3c72;
             font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .expand-all, .collapse-all {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        .expand-all:hover, .collapse-all:hover {
+            background: #45a049;
+        }
+
+        .collapse-all {
+            background: #f44336;
+        }
+
+        .collapse-all:hover {
+            background: #da190b;
         }
     </style>
 </head>
 <body>
     <div class="mindmap-container">
         <div class="instructions">
-            💡 Haz clic en cualquier nodo para expandir/colapsar | Pasa el mouse para ver información
+            💡 Haz clic en los nodos con '+' para expandir | Pasa el mouse para ver información detallada
+            <button class="expand-all" onclick="expandAll()">Expandir Todo</button>
+            <button class="collapse-all" onclick="collapseAll()">Colapsar Todo</button>
         </div>
         <div id="mindmap"></div>
     </div>
@@ -131,83 +196,119 @@
         <h3 id="infoTitle"></h3>
         <p id="infoContent"></p>
     </div>
+
     <script>
         const mindMapData = {
             text: "Procesos de Software",
             level: "main",
-            info: "Los procesos de software son el conjunto de actividades, métodos y prácticas que se utilizan para desarrollar y mantener software de calidad.",
+            info: "Conjunto de actividades, acciones y tareas que se realizan para crear un producto de software profesional, aplicando un enfoque sistemático, disciplinado y cuantificable.",
             children: [
                 {
                     text: "Definición de Software",
                     level: "level-1",
-                    info: "El software es más que solo código; incluye programas, datos y documentación.",
+                    info: "El software es más que simple código; combina instrucciones, estructuras de datos y documentación para entregar valor al usuario.",
                     children: [
-                        { text: "Programas (Instrucciones)", level: "level-2", info: "Conjunto de instrucciones que ejecutan las funciones deseadas" },
-                        { text: "Estructuras de Datos", level: "level-2", info: "Permiten manipular la información de manera eficiente" },
-                        { text: "Información Descriptiva", level: "level-2", info: "Manuales, diagramas y documentación técnica" },
-                        { text: "Producto y Vehículo", level: "level-2", info: "El software es tanto un producto como un medio para entregar información" }
+                        { 
+                            text: "Producto y Vehículo de Información", 
+                            level: "level-2", 
+                            info: "Como producto: conjunto de programas y datos. Como vehículo: transforma datos en información útil que mejora el mundo del usuario." 
+                        },
+                        { 
+                            text: "Definición Técnica", 
+                            level: "level-2",
+                            info: "Tres elementos esenciales: (1) Instrucciones/programas, (2) Estructuras de datos, (3) Información descriptiva/documentación",
+                            children: [
+                                { text: "Instrucciones (Programas)", level: "level-3", info: "Código que al ejecutarse proporciona las funciones y rendimiento deseados" },
+                                { text: "Estructuras de Datos", level: "level-3", info: "Permiten manipular la información de manera eficiente y efectiva" },
+                                { text: "Documentación", level: "level-3", info: "Manuales, diagramas de diseño y documentación técnica que describen operación y uso" }
+                            ]
+                        },
+                        { 
+                            text: "Categorías Modernas", 
+                            level: "level-2",
+                            info: "Tipos de software que dominan el mercado actual",
+                            children: [
+                                { text: "WebApps (Web 3.0)", level: "level-3", info: "Aplicaciones web sofisticadas con bases de datos semánticas, APIs y representación flexible de datos" },
+                                { text: "Aplicaciones Móviles", level: "level-3", info: "Aprovechan sensores, pantallas táctiles, geolocalización y notificaciones push" }
+                            ]
+                        }
                     ]
                 },
                 {
                     text: "Ingeniería de Software",
                     level: "level-1",
-                    info: "Aplicación sistemática, disciplinada y cuantificable al desarrollo del software.",
+                    info: "Disciplina que aplica un enfoque sistemático, disciplinado y cuantificable al desarrollo, operación y mantenimiento del software (SWEBOK).",
                     children: [
-                        { 
-                            text: "Enfoque sistemático", 
-                            level: "level-2",
-                            info: "Métodos estructurados que aseguran calidad",
-                            children: [
-                                { text: "Compromiso con la Calidad", level: "level-3", info: "La calidad debe ser fundamental" }
-                            ]
-                        },
                         { 
                             text: "Tecnología en Capas", 
                             level: "level-2",
-                            info: "La ingeniería se construye sobre capas fundamentales",
+                            info: "La ingeniería de software se construye sobre cuatro capas fundamentales interrelacionadas",
                             children: [
-                                { text: "Proceso (Fundación)", level: "level-3", info: "Marco de trabajo" },
-                                { text: "Métodos", level: "level-3", info: "Cómo técnicos: análisis, diseño, pruebas" },
-                                { text: "Herramientas (CASE)", level: "level-3", info: "Soporte automatizado" }
+                                { text: "Compromiso con la Calidad", level: "level-3", info: "Fundamento organizacional indispensable; sin calidad, las técnicas no importan" },
+                                { text: "Capa de Proceso", level: "level-3", info: "El 'pegamento' que mantiene unidas las capas; define el marco de trabajo" },
+                                { text: "Métodos", level: "level-3", info: "Los 'cómo técnicos': comunicación, análisis, diseño, construcción, pruebas y soporte" },
+                                { text: "Herramientas (CASE)", level: "level-3", info: "Soporte automatizado o semiautomatizado para proceso y métodos" }
                             ]
                         },
-                        { text: "Importancia", level: "level-2", info: "Complejidad, Adaptabilidad y Costo" }
+                        { 
+                            text: "Importancia", 
+                            level: "level-2",
+                            info: "Razones fundamentales por las que la ingeniería de software es crucial",
+                            children: [
+                                { text: "Complejidad y Tiempo", level: "level-3", info: "Permite construir sistemas complejos de manera oportuna y con alta calidad" },
+                                { text: "Adaptabilidad", level: "level-3", info: "Impone disciplina pero permite adaptar el enfoque según necesidades; no es una camisa de fuerza" },
+                                { text: "Dependencia Social", level: "level-3", info: "Sociedad depende de sistemas fiables; fallos en sistemas críticos tienen consecuencias devastadoras" },
+                                { text: "Costo a Largo Plazo", level: "level-3", info: "Es más económico usar métodos de ingeniería; corregir en producción es exponencialmente más caro que en diseño" }
+                            ]
+                        }
                     ]
                 },
                 {
                     text: "El Proceso de Software",
                     level: "level-1",
-                    info: "Colección de actividades, acciones y tareas para crear software.",
+                    info: "Colección de actividades, acciones y tareas que conducen a la producción de un producto de software.",
                     children: [
                         { 
                             text: "Jerarquía del Trabajo", 
                             level: "level-2",
+                            info: "Niveles de organización del trabajo de desarrollo",
                             children: [
-                                { text: "Proceso", level: "level-3", info: "Colección general" },
-                                { text: "Actividad", level: "level-3", info: "Objetivos amplios" },
-                                { text: "Acción", level: "level-3", info: "Productos de trabajo" },
-                                { text: "Tarea", level: "level-3", info: "Objetivos pequeños" }
+                                { text: "Proceso", level: "level-3", info: "Colección general; el paraguas que engloba todo el trabajo" },
+                                { text: "Actividad", level: "level-3", info: "Objetivo amplio e independiente del dominio (ej: comunicación con stakeholders)" },
+                                { text: "Acción", level: "level-3", info: "Conjunto de tareas que producen un producto de trabajo importante (ej: diseño arquitectónico)" },
+                                { text: "Tarea", level: "level-3", info: "Objetivo pequeño y bien definido con resultado tangible (ej: prueba unitaria)" }
                             ]
                         },
                         { 
-                            text: "Sommerville", 
+                            text: "Modelo de Sommerville", 
                             level: "level-2",
+                            info: "Cuatro actividades fundamentales comunes a todos los procesos de software",
                             children: [
-                                { text: "Especificación", level: "level-3", info: "Requisitos" },
-                                { text: "Desarrollo", level: "level-3", info: "Diseño y programación" },
-                                { text: "Validación", level: "level-3", info: "Pruebas" },
-                                { text: "Evolución", level: "level-3", info: "Mantenimiento" }
+                                { text: "Especificación", level: "level-3", info: "Definir el software a producir y restricciones; establecer el 'qué' se va a construir" },
+                                { text: "Desarrollo", level: "level-3", info: "Diseño y programación; transformar la especificación en producto tangible" },
+                                { text: "Validación", level: "level-3", info: "Verificar que es lo que el cliente requiere; incluye pruebas y revisiones" },
+                                { text: "Evolución", level: "level-3", info: "Modificar para adaptarse a cambios; el software nunca está realmente 'terminado'" }
                             ]
                         },
                         { 
-                            text: "Pressman y Maxim", 
+                            text: "Marco de Pressman y Maxim", 
                             level: "level-2",
+                            info: "Cinco actividades del flujo de trabajo genérico",
                             children: [
-                                { text: "Comunicación", level: "level-3", info: "Entender stakeholders" },
-                                { text: "Planificación", level: "level-3", info: "Crear mapa del proyecto" },
-                                { text: "Modelado", level: "level-3", info: "Comprender requisitos" },
-                                { text: "Construcción", level: "level-3", info: "Código y pruebas" },
-                                { text: "Despliegue", level: "level-3", info: "Entrega al cliente" }
+                                { text: "Comunicación", level: "level-3", info: "Comprender objetivos del stakeholder y recolectar requisitos" },
+                                { text: "Planificación", level: "level-3", info: "Crear el 'mapa' del proyecto: tareas, riesgos, recursos, cronograma" },
+                                { text: "Modelado", level: "level-3", info: "Crear modelos para comprender requisitos y diseño arquitectónico" },
+                                { text: "Construcción", level: "level-3", info: "Generación de código y pruebas para descubrir errores" },
+                                { text: "Despliegue", level: "level-3", info: "Entrega al cliente, evaluación y retroalimentación" }
+                            ]
+                        },
+                        { 
+                            text: "Adaptación del Proceso", 
+                            level: "level-2",
+                            info: "El proceso debe ser ágil y adaptable, NO una receta rígida. Debe ajustarse al problema, proyecto, equipo y cultura organizacional.",
+                            children: [
+                                { text: "Ejemplo: Sistema Crítico", level: "level-3", info: "Marcapasos: proceso riguroso y documentado donde la seguridad es prioritaria" },
+                                { text: "Ejemplo: App Casual", level: "level-3", info: "Juego móvil: proceso ágil donde la velocidad de llegada al mercado es prioritaria" }
                             ]
                         }
                     ]
@@ -215,22 +316,90 @@
                 {
                     text: "Modelos de Proceso (SDLC)",
                     level: "level-1",
-                    info: "Representación simplificada del proceso de software.",
+                    info: "Software Development Life Cycle: Representación simplificada que organiza las actividades en una estructura definida.",
                     children: [
-                        { text: "Cascada (Lineal)", level: "level-2", info: "Enfoque secuencial" },
-                        { text: "Incremental", level: "level-2", info: "Fragmentos funcionales" },
-                        { text: "Evolutivo", level: "level-2", info: "Espiral y Prototipos" },
-                        { text: "Especializados", level: "level-2", info: "Componentes, RUP" }
+                        { 
+                            text: "Modelo en Cascada", 
+                            level: "level-2", 
+                            info: "Enfoque lineal y secuencial; cada fase debe completarse antes de que comience la siguiente. Rígido pero ordenado." 
+                        },
+                        { 
+                            text: "Modelo Incremental", 
+                            level: "level-2", 
+                            info: "Combina flujo lineal con naturaleza iterativa; el software se construye y entrega en fragmentos funcionales" 
+                        },
+                        { 
+                            text: "Modelos Evolutivos", 
+                            level: "level-2",
+                            info: "Evolución del software a través de versiones sucesivas basadas en retroalimentación",
+                            children: [
+                                { text: "Prototipado", level: "level-3", info: "Construcción de versiones preliminares para entender requisitos" },
+                                { text: "Modelo Espiral", level: "level-3", info: "Combina desarrollo iterativo con análisis de riesgos sistemático" }
+                            ]
+                        },
+                        { 
+                            text: "Modelos Concurrentes", 
+                            level: "level-2", 
+                            info: "Permiten que diferentes actividades ocurran simultáneamente; útil en proyectos grandes con equipos extensos" 
+                        },
+                        { 
+                            text: "Modelos Especializados", 
+                            level: "level-2",
+                            info: "Adoptan características de modelos tradicionales con enfoques específicos",
+                            children: [
+                                { text: "Basado en Componentes", level: "level-3", info: "Centrado en integración de componentes de software reutilizables" },
+                                { text: "Orientado a Aspectos", level: "level-3", info: "Modulariza preocupaciones transversales (seguridad, logging)" },
+                                { text: "RUP (Rational Unified Process)", level: "level-3", info: "Marco iterativo e incremental, guiado por casos de uso y centrado en arquitectura" }
+                            ]
+                        }
                     ]
                 },
                 {
                     text: "Calidad del Software",
                     level: "level-1",
-                    info: "Capacidad de satisfacer necesidades establecidas.",
+                    info: "Capacidad del producto software para satisfacer las necesidades establecidas e implícitas bajo condiciones especificadas.",
                     children: [
-                        { text: "Cumplimiento de requisitos", level: "level-2", info: "Grado de cumplimiento" },
-                        { text: "Satisfacción del stakeholder", level: "level-2", info: "Necesidades y expectativas" },
-                        { text: "Valor funcional y técnico", level: "level-2", info: "Código limpio + valor" }
+                        { 
+                            text: "Definición de Calidad", 
+                            level: "level-2",
+                            info: "Grado en que el software cumple con los requisitos establecidos y satisface necesidades del stakeholder",
+                            children: [
+                                { text: "Cumplimiento de Requisitos", level: "level-3", info: "El software debe cumplir con las especificaciones técnicas establecidas" },
+                                { text: "Satisfacción del Stakeholder", level: "level-3", info: "Los requisitos deben representar necesidades, deseos y expectativas reales" },
+                                { text: "Valor Funcional y Técnico", level: "level-3", info: "Calidad = código limpio (técnico) + valor para el usuario (funcional)" }
+                            ]
+                        },
+                        { 
+                            text: "Matiz Crucial", 
+                            level: "level-2", 
+                            info: "Un software sin errores pero que no resuelve el problema del usuario NO tiene calidad. La calidad no es solo técnica, sino también funcional." 
+                        }
+                    ]
+                },
+                {
+                    text: "Programación Individual vs. Profesional",
+                    level: "level-1",
+                    info: "Diferencias fundamentales entre escribir programas personales y desarrollar software profesional.",
+                    children: [
+                        { 
+                            text: "Programación Individual", 
+                            level: "level-2",
+                            info: "Scripts personales, macros, código de aficionados",
+                            children: [
+                                { text: "Características", level: "level-3", info: "Programador = único usuario; funcionalidad inmediata; sin presión de mantenimiento a largo plazo" },
+                                { text: "Ejemplos", level: "level-3", info: "Macros en Excel, scripts para análisis de datos, código por interés personal" }
+                            ]
+                        },
+                        { 
+                            text: "Desarrollo Profesional", 
+                            level: "level-2",
+                            info: "Software para negocio, institucional o crítico",
+                            children: [
+                                { text: "Usuario ≠ Desarrollador", level: "level-3", info: "Código debe ser comprensible para otros; interfaz intuitiva; comportamiento predecible" },
+                                { text: "Desarrollo en Equipo", level: "level-3", info: "Equipos multidisciplinarios: analistas, diseñadores, programadores, testers, gestores" },
+                                { text: "Ciclo de Vida Extendido", level: "level-3", info: "Mantenimiento, cambios y evolución durante años o décadas" }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -240,22 +409,40 @@
             const node = document.createElement('div');
             node.className = `node ${nodeData.level} ${level === 0 ? 'main-node' : ''}`;
             
-            // AGREGAR CLASE COLLAPSED POR DEFECTO
-            node.classList.add('collapsed');
-            
             const nodeContent = document.createElement('div');
             nodeContent.className = 'node-content';
             nodeContent.textContent = nodeData.text;
             
-            const toggleBtn = document.createElement('div');
-            toggleBtn.className = 'toggle-btn';
-            // CAMBIAR A '+' POR DEFECTO (COLAPSADO)
-            toggleBtn.textContent = '+';
+            const hasChildren = nodeData.children && nodeData.children.length > 0;
             
-            nodeContent.appendChild(toggleBtn);
+            if (hasChildren) {
+                node.classList.add('collapsed');
+                
+                const toggleBtn = document.createElement('div');
+                toggleBtn.className = 'toggle-btn';
+                toggleBtn.textContent = '+';
+                toggleBtn.title = 'Click para expandir/colapsar';
+                
+                nodeContent.appendChild(toggleBtn);
+                
+                nodeContent.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    node.classList.toggle('collapsed');
+                    toggleBtn.textContent = node.classList.contains('collapsed') ? '+' : '−';
+                });
+                
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    node.classList.toggle('collapsed');
+                    toggleBtn.textContent = node.classList.contains('collapsed') ? '+' : '−';
+                });
+            } else {
+                node.classList.add('leaf');
+            }
+            
             node.appendChild(nodeContent);
             
-            if (nodeData.children && nodeData.children.length > 0) {
+            if (hasChildren) {
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'children';
                 
@@ -265,23 +452,15 @@
                 });
                 
                 node.appendChild(childrenContainer);
-                
-                nodeContent.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    node.classList.toggle('collapsed');
-                    toggleBtn.textContent = node.classList.contains('collapsed') ? '+' : '−';
-                });
-            } else {
-                toggleBtn.style.display = 'none';
             }
             
             if (nodeData.info) {
-                node.addEventListener('mouseenter', (e) => {
+                node.addEventListener('mouseenter', function(e) {
                     e.stopPropagation();
                     showInfo(nodeData.text, nodeData.info);
                 });
                 
-                node.addEventListener('mouseleave', () => {
+                node.addEventListener('mouseleave', function() {
                     hideInfo();
                 });
             }
@@ -300,10 +479,39 @@
         }
 
         function hideInfo() {
-            document.getElementById('infoPanel').style.display = 'none';
+            const infoPanel = document.getElementById('infoPanel');
+            infoPanel.style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function expandAll() {
+            const allNodes = document.querySelectorAll('.node');
+            const allButtons = document.querySelectorAll('.toggle-btn');
+            
+            allNodes.forEach(node => {
+                node.classList.remove('collapsed');
+            });
+            
+            allButtons.forEach(btn => {
+                btn.textContent = '−';
+            });
+        }
+
+        function collapseAll() {
+            const allNodes = document.querySelectorAll('.node');
+            const allButtons = document.querySelectorAll('.toggle-btn');
+            
+            allNodes.forEach(node => {
+                if (node.querySelector('.toggle-btn')) {
+                    node.classList.add('collapsed');
+                }
+            });
+            
+            allButtons.forEach(btn => {
+                btn.textContent = '+';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('mindmap');
             const mindMap = createNode(mindMapData);
             container.appendChild(mindMap);
